@@ -69,9 +69,6 @@ def draw_timetable(target: str, week: int, day: int, is_today: bool=False) -> Im
     return img
 
 
-def draw_today_timetable_for(group: str):
+def draw_today_timetable_for(group: str) -> ImageText:
     week, day = datetime.datetime.now().isocalendar()[1] % 2 + 1, datetime.datetime.now().weekday() + 1
-    draw_timetable(group, week, day, False).show()
-
-
-draw_today_timetable_for("КИ19-07Б")
+    return draw_timetable(group, week, day, False)
