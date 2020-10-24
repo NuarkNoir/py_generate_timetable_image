@@ -20,8 +20,8 @@ class ImageText(object):
         self.draw = ImageDraw.Draw(self.image)
         self.encoding = encoding
 
-    def save(self, filename=None):
-        self.image.save(filename or self.filename)
+    def save(self, filename=None, **kwargs):
+        self.image.save(filename or self.filename, **kwargs)
 
     def show(self):
         self.image.show()

@@ -1,11 +1,16 @@
+import io
+from pathlib import Path
 import requests
-import datetime
-from image_utils import ImageText
+from datetime import datetime
+import pytz
 
-font_extra_bold = "fonts/MontserratAlternates-ExtraBold.ttf"
-font_light = "fonts/MontserratAlternates-Light.ttf"
-font_light_italic = "fonts/MontserratAlternates-LightItalic.ttf"
-font_medium = "fonts/MontserratAlternates-Medium.ttf"
+from .image_utils import ImageText
+
+path = str(Path(__file__).parent.absolute())
+font_extra_bold =       path + "/fonts/MontserratAlternates-ExtraBold.ttf"
+font_light =            path + "/fonts/MontserratAlternates-Light.ttf"
+font_light_italic =     path + "/fonts/MontserratAlternates-LightItalic.ttf"
+font_medium =           path + "/fonts/MontserratAlternates-Medium.ttf"
 
 weekdays = [
     "понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"
@@ -20,6 +25,10 @@ type_color = {
     "лабораторная работа": (0xBA, 0x3C, 0xBA),
     "семинар": (0x00, 0x79, 0x6B)
 }
+
+
+def krat_now() -> datetime:
+    return datetime.now(pytz.timezone("Asia/Krasnoyarsk"))
 
 
 def get_color_for_type(_type: str) -> tuple:
@@ -50,7 +59,7 @@ def draw_timetable(target: str, week: int, day: int, is_today: bool=False) -> Im
     title = f"Расписание занятий для {target}"
     sub_title = get_sub_for_day(week, day)
     if is_today:
-        sub_title += " " + datetime.datetime.now().strftime("%d.%m.%Y")
+        sub_title += " " + krat_now().strftime("%d.%m") + " (KRAT)"
     img.write_text_box((50, 50), title, box_width=900, font_filename=font_extra_bold, font_size=40, color=color)
     img.write_text_box((50, 90), sub_title, box_width=900, font_filename=font_light_italic, font_size=30, color=color)
 
@@ -69,6 +78,15 @@ def draw_timetable(target: str, week: int, day: int, is_today: bool=False) -> Im
     return img
 
 
-def draw_today_timetable_for(group: str) -> ImageText:
-    week, day = datetime.datetime.now().isocalendar()[1] % 2 + 1, datetime.datetime.now().weekday() + 1
+def draw_today_timetable(group: str) -> ImageText:
+    now_o = krat_now()
+    week, day = now_o.isocalendar()[1] % 2 + 1, now_o.weekday() + 1
     return draw_timetable(group, week, day, False)
+
+
+def image_to_bytes(image: ImageText) -> io.BytesIO:
+    with io.BytesIO() as output:
+        image.save(output, format="png")
+        out_b = output.getvalue()
+
+    return io.BytesIO(out_b)
